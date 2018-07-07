@@ -462,3 +462,37 @@ for x in range(0,100):
 
 
 print(str(big_sum))
+
+
+
+# PE 14
+# Collatz sequences
+
+
+answer = 0
+
+def seq(x):
+
+    collatz = [x]
+
+    while(True):
+        if(x==1):
+            return len(collatz)
+
+        elif(x % 2 == 0):
+            x=x/2
+            collatz.append(x)
+
+        else:
+            x=(3*x)+1
+            collatz.append(x)
+
+
+for x in range(1,1000000):
+    if(seq(x)>answer):
+        answer = seq(x)
+        print(str(x) + " has a chain of " + str(answer))
+
+
+
+
