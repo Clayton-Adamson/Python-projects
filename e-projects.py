@@ -493,6 +493,139 @@ for x in range(1,1000000):
         answer = seq(x)
         print(str(x) + " has a chain of " + str(answer))
 
+        
+        
+# PE 15 (INCOMPLETE)
+# how many routes (down + right only) make it through a 20X20 grid
+# So far, i am stumped, how do i generate each unique path?
+# or avoid making the same path twice?
+# I'll come back to this
+
+
+grid_hell = []
+
+for x in range(0,20):
+    grid_hell.append([])
+    for y in range(0,20):
+        grid_hell[x].append(0)
+
+for x in range(0,20):
+     print(grid_hell[x])
+
+
+# PE 16
+# sum of digits in 2^1000
+
+big_num = 2**1000
+big_list = [int(x) for x in str(big_num)]
+counter = 0
+
+for x in range(0,len(big_list)):
+    counter = counter + big_list[x]
+
+print(counter)
+
+
+# PE 17, kinda proud of this one because I wrote it without testing it, but debugged for only 2 min.
+# from 1,1000: how many letters used
+
+# 1,2,3,4,5 given in question
+# im manually adding one thousand and removing 9 "and"s
+
+letters_used = ["1", "2", "3"]
+
+
+def spell_ones(word,y,x):
+
+    if(y==1):
+
+        if(x==0):
+            word.extend("ten")
+        elif(x==1):
+            word.extend("eleven")
+        elif(x==2):
+            word.extend("twelve")
+        elif(x==3):
+            word.extend("thirteen")
+        elif(x==4):
+            word.extend("fourteen")
+        elif(x==5):
+            word.extend("fifteen")
+        elif(x==6):
+            word.extend("sixteen")
+        elif(x==7):
+            word.extend("seventeen")
+        elif(x==8):
+            word.extend("eighteen")
+        elif(x==9):
+            word.extend("nineteen")
+
+    else:
+
+        if(x==1):
+            word.extend("one")
+        elif(x==2):
+            word.extend("two")
+        elif(x==3):
+            word.extend("three")
+        elif(x==4):
+            word.extend("four")
+        elif(x==5):
+            word.extend("five")
+        elif(x==6):
+            word.extend("six")
+        elif(x==7):
+            word.extend("seven")
+        elif(x==8):
+            word.extend("eight")
+        elif(x==9):
+            word.extend("nine")
+
+
+def spell_tens(word,y,x):
+
+    if(y==2):
+        word.extend("twenty")
+    elif(y==3):
+        word.extend("thirty")
+    elif(y==4):
+        word.extend("forty")
+    elif(y==5):
+        word.extend("fifty")
+    elif(y==6):
+        word.extend("sixty")
+    elif(y==7):
+        word.extend("seventy")
+    elif(y==8):
+        word.extend("eighty")
+    elif(y==9):
+        word.extend("ninety")
+
+    spell_ones(word,y,x)
+
+
+
+def spell_hund(word,z,y,x):
+
+    spell_ones(letters_used, 0,z)
+    word.extend("hundredand")
+    spell_tens(word,y,x)
+
+
+
+for i in range(6,10):
+    spell_ones(letters_used,0,i)
+
+for i in range(10,100):
+    a_list = [int(a) for a in str(i)]
+    spell_tens(letters_used, a_list[0], a_list[1])
+
+for i in range(100,1000):
+    a_list = [int(a) for a in str(i)]
+    spell_hund(letters_used, a_list[0], a_list[1], a_list[2])
+
+print(letters_used)
+print(len(letters_used))        
 
 
 
