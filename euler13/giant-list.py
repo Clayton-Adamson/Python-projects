@@ -1,7 +1,8 @@
 
 # PE 13
 # first 10 digits of the sum of all these digits
-# i hard coded the data part 
+# i hard coded the data part because I didn't try to 
+# truncate the list using a string iterator
 # *shame intensifies*
 
 giant_list = [[37107287533902102798797998220837590246510135740250],
