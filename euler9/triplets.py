@@ -2,6 +2,10 @@
 # pythagorean triplet, find product abc
 # when a+b+c = 1000
 
+import sys
+import random
+import math
+
 for a in range(1,1000):
     for b in range(2,1001):
         if(a>b):
