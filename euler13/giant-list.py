@@ -1,7 +1,8 @@
 
 # PE 13
 # first 10 digits of the sum of all these digits
-# i hard coded the data part
+# i hard coded the data part 
+# *shame intensifies*
 
 giant_list = [[37107287533902102798797998220837590246510135740250],
 [46376937677490009712648124896970078050417018260538],
