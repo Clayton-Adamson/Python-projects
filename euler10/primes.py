@@ -1,6 +1,8 @@
 # PE 10
 # sum of primes below 2 million
-
+import sys
+import random
+import math
 
 sum_primes = 17
 prime_list = [2,3,5,7]
