@@ -18,7 +18,7 @@ while(fib_sum<=4000000):
 print("\n")
 
 
-# counter plus 2 gives result, note that 
+# counter plus 2 gives the result, note that 
 # the while loop prints a fib_sum over 4 million, but this value is odd,
 # so the if statement throws it out of the counter
 
