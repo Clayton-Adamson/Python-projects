@@ -4,6 +4,10 @@
 # if x is odd, return 3x+1
 # repeat until x=1
 
+import sys
+import random
+import math
+
 answer = 0
 
 def seq(x):
