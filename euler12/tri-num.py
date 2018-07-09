@@ -2,6 +2,10 @@
 # PE 12
 # what is the first triangle number (1+2+3+... = tri-num) to have over 500 divisors
 #WOW THIS CODE IS UGLY but i still got it right
+import sys
+import random
+import math
+
 
 def tri_num(x):
     sum_num = 0
