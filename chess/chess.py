@@ -58,14 +58,39 @@ for y in range(0,8):
     for x in range(0,8):
 
         if(color_grid[y][x] == 1):
-            board.create_rectangle(100 + 50*x, 100 + 50*y, 150 + 50*x, 150 + 50*y, fill = "chocolate")
+            board.create_rectangle(100 + 50*x, 100 + 50*y, 150 + 50*x, 150 + 50*y, fill = "grey60")
 
         else:
+            #lightgoldenrod2
             board.create_rectangle(100 + 50*x, 100 + 50*y, 150 + 50*x, 150 + 50*y, fill = "white")
 
-green_highlighter = board.create_rectangle(100,100,150,150)
+# Creates the yellow highlighter square that shows which piece has been clicked
+yellow_highlighter = board.create_rectangle(100,100,150,150)
 
 
+
+
+# Creates the invisible squares that "light up" to show the available attack squares for the clicked piece
+highlight_lst = []
+
+def set_highlight_squares():
+
+    for y in range(0,8):
+        for x in range(0,8):
+            square = board.create_rectangle(100 + 50*x, 100 + 50*y, 150 + 50*x, 150 + 50*y, fill = "")
+            highlight_lst.append(square)
+
+set_highlight_squares()
+
+# Method that standardizes any coordinate to a square's top left corner
+def adj_coord(raw_num):
+
+    b = 0
+
+    for a in range(1,9):
+        if(raw_num < 100 + a*50):
+            b = 50 + (a*50)
+            return b
 
 
 # These are the piece classes
@@ -135,6 +160,8 @@ class rook:
 class knight:
 
     global board
+    global white_piece_coord_lst
+    global black_piece_coord_lst
 
     def __init__(self, x, y, color):
 
@@ -142,6 +169,7 @@ class knight:
         self.y = y
         self.color = color
         self.type = "knight"
+        self.attack_lst = []
 
 
         # The Head
@@ -170,6 +198,58 @@ class knight:
     def get_y(self):
         current_y = adj_coord(board.coords(self.head)[1])
         return current_y
+
+
+    def set_attack_squares(self, color):
+
+        if(color == "black"):
+            piece_coord_lst = black_piece_coord_lst
+
+        else:
+            piece_coord_lst = white_piece_coord_lst
+
+        self.attack_lst = []
+        x = adj_coord(board.coords(self.head)[0])
+        y = adj_coord(board.coords(self.head)[1])
+
+        # top-left
+        if(x > 100 and y > 150):
+            self.attack_lst.append([x-50, y-100])
+
+        # top-right
+        if(x < 450 and y > 150):
+            self.attack_lst.append([x + 50, y - 100])
+
+        #bottom-left
+        if(x > 100 and y < 400):
+            self.attack_lst.append([x - 50, y + 100])
+
+        #bottom-right
+        if(x < 450 and y < 400):
+            self.attack_lst.append([x + 50, y + 100])
+
+        #left-up
+        if(x > 150 and y > 100):
+            self.attack_lst.append([x - 100, y - 50])
+
+        #left-down
+        if(x > 150 and y < 450):
+            self.attack_lst.append([x - 100, y + 50])
+
+        #right-up
+        if(x < 400 and y > 100):
+            self.attack_lst.append([x + 100, y - 50])
+
+        #right-down
+        if(x < 400 and y < 450):
+            self.attack_lst.append([x + 100, y + 50])
+
+        for taken_squares in piece_coord_lst:
+            if(taken_squares in self.attack_lst):
+                self.attack_lst.remove(taken_squares)
+
+        return self.attack_lst
+
 
 # Creates a bishop. (x,y) are the top-left coordinates of the square
 class bishop:
@@ -255,6 +335,7 @@ class king:
         self.y = y
         self.color = color
         self.type = "king"
+        self.attack_lst = []
 
         # This draws the base
         self.bump = board.create_oval(x+10,y+30,x+40,y+43, fill = color, outline = color)
@@ -279,6 +360,60 @@ class king:
         current_y = adj_coord(board.coords(self.stem)[1])
         return current_y
 
+    def set_attack_squares(self, color):
+        if(color == "black"):
+            piece_coord_lst = black_piece_coord_lst
+
+        else:
+            piece_coord_lst = white_piece_coord_lst
+
+        self.attack_lst = []
+        x = adj_coord(board.coords(self.bump)[0])
+        y = adj_coord(board.coords(self.bump)[1])
+
+        # top-left
+        if(x > 100 and y > 100):
+            self.attack_lst.append([x - 50, y - 50])
+
+        # up
+        if(y > 100):
+            self.attack_lst.append([x, y - 50])
+
+        # top-right
+        if(x < 450 and y > 100):
+            self.attack_lst.append([x + 50, y - 50])
+
+        # left
+        if(x > 100):
+            self.attack_lst.append([x - 50, y])
+
+        # right
+        if(x < 450):
+            self.attack_lst.append([x + 50, y])
+
+        # bottom-left
+        if(x > 100 and y < 450):
+            self.attack_lst.append([x - 50, y + 50])
+
+        # down
+        if(y < 450):
+            self.attack_lst.append([x, y + 50])
+
+        # bottom-right
+        if(x < 450 and y < 450):
+            self.attack_lst.append([x + 50, y + 50])
+
+        for taken_squares in piece_coord_lst:
+            if(taken_squares in self.attack_lst):
+                self.attack_lst.remove(taken_squares)
+
+        return self.attack_lst
+
+
+def smash_piece(piece):
+    for parts in piece.widget_lst:
+        #board.itemconfig(parts, fill = "", outline = "")
+        board.delete(parts)
 
 
 def promote_piece(key_pressed):
@@ -383,17 +518,18 @@ def select_knight(event):
 
     promote_piece("k")
 
-
+#DarkOrange4
 # Initializes all the pieces
+white_color = "blue"
 
-wap = pawn(100, 400, "blue")
-wbp = pawn(150, 400, "blue")
-wcp = pawn(200, 400, "blue")
-wdp = pawn(250, 400, "blue")
-wep = pawn(300, 400, "blue")
-wfp = pawn(350, 400, "blue")
-wgp = pawn(400, 400, "blue")
-whp = pawn(450, 400, "blue")
+wap = pawn(100, 400, white_color)
+wbp = pawn(150, 400, white_color)
+wcp = pawn(200, 400, white_color)
+wdp = pawn(250, 400, white_color)
+wep = pawn(300, 400, white_color)
+wfp = pawn(350, 400, white_color)
+wgp = pawn(400, 400, white_color)
+whp = pawn(450, 400, white_color)
 
 
 bap = pawn(100, 150, "black")
@@ -406,26 +542,26 @@ bgp = pawn(400, 150, "black")
 bhp = pawn(450, 150, "black")
 
 
-war = rook(100, 450, "blue")
-whr = rook(450, 450, "blue")
+war = rook(100, 450, white_color)
+whr = rook(450, 450, white_color)
 
 bar = rook(100, 100, "black")
 bhr = rook(450, 100, "black")
 
-wbk = knight(150, 450, "blue")
-wgk = knight(400, 450, "blue")
+wbk = knight(150, 450, white_color)
+wgk = knight(400, 450, white_color)
 
 bbk = knight(150, 100, "black")
 bgk = knight(400, 100, "black")
 
-wcb = bishop(200, 450, "blue")
-wfb = bishop(350, 450, "blue")
+wcb = bishop(200, 450, white_color)
+wfb = bishop(350, 450, white_color)
 
 bcb = bishop(200, 100, "black")
 bfb = bishop(350, 100, "black")
 
-wq = queen(250, 450, "blue")
-wk = king(300, 450, "blue")
+wq = queen(250, 450, white_color)
+wk = king(300, 450, white_color)
 
 bq = queen(250, 100, "black")
 bk = king(300, 100, "black")
@@ -435,6 +571,13 @@ bk = king(300, 100, "black")
 black_piece_lst = [bap, bbp, bcp, bdp, bep, bfp, bgp, bhp, bar, bhr, bbk, bgk, bcb, bfb, bq, bk]
 white_piece_lst = [wap, wbp, wcp, wdp, wep, wfp, wgp, whp, war, whr, wbk, wgk, wcb, wfb, wq, wk]
 
+white_piece_coord_lst = []
+for pieces in white_piece_lst:
+    white_piece_coord_lst.append([pieces.get_x(), pieces.get_y()])
+
+black_piece_coord_lst = []
+for pieces in black_piece_lst:
+    black_piece_coord_lst.append([pieces.get_x(), pieces.get_y()])
 
 # This part of the code is super important.
 # It sets master_piece (the piece clicked) to None
@@ -450,15 +593,6 @@ white_selector = board.create_oval(104, 454, 146, 496, width = 7, outline = "blu
 black_selector = board.create_rectangle(100, 100, 150, 150, width = 7, outline = "black")
 
 
-# Method that standardizes any coordinate to a square's top left corner
-def adj_coord(raw_num):
-
-    b = 0
-
-    for a in range(1,9):
-        if(raw_num < 100 + a*50):
-            b = 50 + (a*50)
-            return b
 
 
 # Takes target (x,y) and destination (dest_x, dest_y) and works out dx,dy
@@ -483,54 +617,64 @@ def delta_coords(x, y, dest_x, dest_y):
 
 
 # This method changes the variable master_piece to the piece clicked
-# It also highlights the clicked piece with a green square
+# It also highlights the clicked piece with a yellow square
 def click_piece(event):
 
     global white_to_move
     global master_piece
     global white_piece_lst
     global black_piece_lst
-    global green_highlighter
+    global yellow_highlighter
     global promote
 
 
 
     # The if statement makes sure that you clicked inside the board
+
     if(event.x < 500 and event.x > 100 and event.y < 500 and event.y > 100 and not promote):
+
+        for squares in highlight_lst:
+            board.itemconfig(squares, fill = "")
 
         x_corner = adj_coord(event.x)
         y_corner = adj_coord(event.y)
 
 
         if(white_to_move):
-            for piece in white_piece_lst:
-
-                if(piece.get_x() == x_corner and piece.get_y() == y_corner):
-
-                    master_piece = piece
-                    high_light_coords = delta_coords(board.coords(green_highlighter)[0], board.coords(green_highlighter)[1], x_corner, y_corner)
-                    board.move(green_highlighter,high_light_coords[0], high_light_coords[1])
-                    board.itemconfig(green_highlighter, fill = "green")
-                    return
-
-            master_piece = None
-            board.itemconfig(green_highlighter, fill = "")
-
+            color = "sky blue"
+            piece_lst = white_piece_lst
 
 
         else:
-            for piece in black_piece_lst:
-                if(piece.get_x() == x_corner and piece.get_y() == y_corner):
+            color = "Pale green"
+            piece_lst = black_piece_lst
 
-                    master_piece = piece
 
-                    high_light_coords = delta_coords(board.coords(green_highlighter)[0], board.coords(green_highlighter)[1], x_corner, y_corner)
-                    board.move(green_highlighter,high_light_coords[0], high_light_coords[1])
-                    board.itemconfig(green_highlighter, fill = "green")
-                    return
+        for piece in piece_lst:
 
-                master_piece = None
-                board.itemconfig(green_highlighter, fill = "")
+            if(piece.get_x() == x_corner and piece.get_y() == y_corner):
+
+                master_piece = piece
+                high_light_coords = delta_coords(board.coords(yellow_highlighter)[0], board.coords(yellow_highlighter)[1], x_corner, y_corner)
+                board.move(yellow_highlighter,high_light_coords[0], high_light_coords[1])
+                board.itemconfig(yellow_highlighter, fill = "yellow")
+
+
+                if(master_piece.type == "knight" or master_piece.type == "king"):
+                    master_piece.set_attack_squares(master_piece.color)
+
+                    for coords in master_piece.attack_lst:
+                        for squares in highlight_lst:
+
+                            if(board.coords(squares)[0] == coords[0] and board.coords(squares)[1] == coords[1]):
+                                board.itemconfig(squares, fill = color)
+
+                return
+
+            master_piece = None
+            board.itemconfig(yellow_highlighter, fill = "")
+
+
 
 
 # If it's white's turn, this method moves the master_piece to the white selector
@@ -541,6 +685,9 @@ def move_white_piece(event):
     global master_piece
     global white_to_move
     global promote
+    global white_piece_coord_lst
+    global black_piece_coord_lst
+
 
     if(master_piece == None or not white_to_move or promote):
         return
@@ -552,27 +699,52 @@ def move_white_piece(event):
         y_corner = adj_coord(board.coords(white_selector)[1])
         current_x = master_piece.get_x()
         current_y = master_piece.get_y()
-        move_lst = delta_coords(current_x, current_y, x_corner, y_corner)
 
-        for x in master_piece.widget_lst:
-            board.move(x, move_lst[0], move_lst[1])
+        if(master_piece.type == "knight" and [x_corner, y_corner] not in master_piece.attack_lst):
+            return
 
-        board.itemconfig(green_highlighter, fill = "")
-
-        if(master_piece.get_y() == 100 and master_piece.type == "pawn"):
-            promote = True
-            board.itemconfig(promote_text, fill = "black")
+        elif(master_piece.type == "king" and [x_corner, y_corner] not in master_piece.attack_lst):
             return
 
         else:
 
-            # Make it black's move
-            white_to_move = False
+            move_lst = delta_coords(current_x, current_y, x_corner, y_corner)
 
-            # You have to reset the master_piece, otherwise the game would allow you
-            # To move that piece over and over with each move_piece event.
-            # After the piece moves, the game needs to defer to the mouse again.
-            master_piece = None
+            white_piece_coord_lst.remove([current_x, current_y])
+            white_piece_coord_lst.append([x_corner, y_corner])
+
+            if([x_corner, y_corner] in black_piece_coord_lst):
+                black_piece_coord_lst.remove([x_corner, y_corner])
+
+                for piece in black_piece_lst:
+                    if(piece.get_x() == x_corner and piece.get_y() == y_corner):
+                        black_piece_lst.remove(piece)
+                        smash_piece(piece)
+                        break
+
+            for x in master_piece.widget_lst:
+                board.move(x, move_lst[0], move_lst[1])
+
+            board.itemconfig(yellow_highlighter, fill = "")
+
+            for squares in highlight_lst:
+                board.itemconfig(squares, fill = "")
+
+
+            if(master_piece.get_y() == 100 and master_piece.type == "pawn"):
+                promote = True
+                board.itemconfig(promote_text, fill = "black")
+                return
+
+            else:
+
+                # Make it black's move
+                white_to_move = False
+
+                # You have to reset the master_piece, otherwise the game would allow you
+                # To move that piece over and over with each move_piece event.
+                # After the piece moves, the game needs to defer to the mouse again.
+                master_piece = None
 
 
 # If it's black's turn, this method moves master_piece to the black selector
@@ -582,6 +754,9 @@ def move_black_piece(event):
     global master_piece
     global white_to_move
     global promote
+    global white_piece_coord_lst
+    global black_piece_coord_lst
+
 
     if(master_piece == None or white_to_move or promote):
         return
@@ -592,27 +767,50 @@ def move_black_piece(event):
         y_corner = adj_coord(board.coords(black_selector)[1])
         current_x = master_piece.get_x()
         current_y = master_piece.get_y()
-        move_lst = delta_coords(current_x, current_y, x_corner, y_corner)
 
-        for x in master_piece.widget_lst:
-            board.move(x, move_lst[0], move_lst[1])
+        if(master_piece.type == "knight" and [x_corner, y_corner] not in master_piece.attack_lst):
+            return
 
-        board.itemconfig(green_highlighter, fill = "")
-
-        if(master_piece.get_y() == 450 and master_piece.type == "pawn"):
-            promote = True
-            board.itemconfig(promote_text, fill = "black")
+        elif(master_piece.type == "king" and [x_corner, y_corner] not in master_piece.attack_lst):
             return
 
         else:
 
-            # Make it black's move
-            white_to_move = True
+            move_lst = delta_coords(current_x, current_y, x_corner, y_corner)
 
-            # You have to reset the master_piece, otherwise the game would allow you
-            # To move that piece over and over with each move_piece event.
-            # After the piece moves, the game needs to defer to the mouse again.
-            master_piece = None
+            black_piece_coord_lst.remove([current_x, current_y])
+            black_piece_coord_lst.append([x_corner, y_corner])
+
+            if([x_corner, y_corner] in white_piece_coord_lst):
+                white_piece_coord_lst.remove([x_corner, y_corner])
+                for piece in white_piece_lst:
+                    if(piece.get_x() == x_corner and piece.get_y() == y_corner):
+                        white_piece_lst.remove(piece)
+                        smash_piece(piece)
+                        break
+
+            for x in master_piece.widget_lst:
+                board.move(x, move_lst[0], move_lst[1])
+
+            board.itemconfig(yellow_highlighter, fill = "")
+
+            for squares in highlight_lst:
+                board.itemconfig(squares, fill = "")
+
+            if(master_piece.get_y() == 450 and master_piece.type == "pawn"):
+                promote = True
+                board.itemconfig(promote_text, fill = "black")
+                return
+
+            else:
+
+                # Make it black's move
+                white_to_move = True
+
+                # You have to reset the master_piece, otherwise the game would allow you
+                # To move that piece over and over with each move_piece event.
+                # After the piece moves, the game needs to defer to the mouse again.
+                master_piece = None
 
 # These methods move the white (blue) player's selector circle around the board
 def w_left_key(event):
