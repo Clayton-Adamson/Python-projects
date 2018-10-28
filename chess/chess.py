@@ -99,6 +99,8 @@ def adj_coord(raw_num):
 class pawn:
 
     global board
+    global white_piece_coord_lst
+    global black_piece_coord_lst
 
     def __init__(self, x, y, color):
 
@@ -110,6 +112,8 @@ class pawn:
         # issoo beautiful
         self.widget_lst = [self.pawn_top, self.pawn_base]
         self.type = "pawn"
+        self.attack_lst = []
+        self.pawn_attack_lst = []
 
 
     def get_x(self):
@@ -119,6 +123,88 @@ class pawn:
     def get_y(self):
         current_y = adj_coord(board.coords(self.pawn_top)[1])
         return current_y
+
+    def pawn_attack(self):
+
+        self.pawn_attack_lst = []
+        x = adj_coord(board.coords(self.pawn_top)[0])
+        y = adj_coord(board.coords(self.pawn_top)[1])
+
+        if(self.color == "black"):
+
+            # down-left (black moves down the board)
+            if(x > 100 and y < 450):
+                self.pawn_attack_lst.append([x - 50, y + 50])
+
+            # down-right (black moves down the board)
+            if(x < 450 and y < 450):
+                self.pawn_attack_lst.append([x + 50, y + 50])
+
+
+        else:
+
+            # up-left (white moves up the board)
+            if(x > 100 and y > 100):
+                self.pawn_attack_lst.append([x - 50, y - 50])
+
+            # up-right (black moves down the board)
+            if(x < 450 and y > 100):
+                self.pawn_attack_lst.append([x + 50, y - 50])
+
+        return self.pawn_attack_lst
+
+
+    def set_attack_squares(self):
+
+        self.attack_lst = []
+        x = adj_coord(board.coords(self.pawn_top)[0])
+        y = adj_coord(board.coords(self.pawn_top)[1])
+
+        if(self.color == "black"):
+
+            friend = black_piece_coord_lst
+            enemy = white_piece_coord_lst
+
+            # down-left (black moves down the board)
+            if(x > 100 and y < 450 and [x - 50, y + 50] in enemy):
+                self.attack_lst.append([x - 50, y + 50])
+
+            # down-right (black moves down the board)
+            if(x < 450 and y < 450 and [x + 50, y + 50] in enemy):
+                self.attack_lst.append([x + 50, y + 50])
+
+            # down one (normal advancement)
+            if(y < 450 and [x, y + 50] not in friend and [x, y + 50] not in enemy):
+                self.attack_lst.append([x, y + 50])
+
+            # down two (special advancement)
+            if(y == 150 and [x, 200] not in friend and [x, 200] not in enemy and [x, 250] not in friend and [x, 250] not in enemy):
+                self.attack_lst.append([x, 250])
+
+
+        else:
+
+            friend = white_piece_coord_lst
+            enemy = black_piece_coord_lst
+
+            # up-left (white moves up the board)
+            if(x > 100 and y > 100 and [x - 50, y - 50] in enemy):
+                self.attack_lst.append([x - 50, y - 50])
+
+            # up-right (white moves up the board)
+            if(x < 450 and y > 100 and [x + 50, y - 50] in enemy):
+                self.attack_lst.append([x + 50, y - 50])
+
+            # up one (normal advancement)
+            if(y > 100 and [x, y - 50] not in friend and [x, y - 50] not in enemy):
+                self.attack_lst.append([x, y - 50])
+
+            # up two (special advancement)
+            if(y == 400 and [x, 350] not in friend and [x, 350] not in enemy and [x, 300] not in friend and [x, 300] not in enemy):
+                self.attack_lst.append([x, 300])
+
+        return self.attack_lst
+
 
 
 # Creates a rook. (x,y) are the top-left coordinates of the square
@@ -155,6 +241,90 @@ class rook:
     def get_y(self):
         current_y = adj_coord(board.coords(self.crown)[1])
         return current_y
+
+
+    def set_attack_squares(self):
+
+        if(self.color == "black"):
+            friendly = black_piece_coord_lst
+            enemy = white_piece_coord_lst
+
+        else:
+            friendly = white_piece_coord_lst
+            enemy = black_piece_coord_lst
+
+
+        self.attack_lst = []
+        x = adj_coord(board.coords(self.stem)[0])
+        y = adj_coord(board.coords(self.stem)[1])
+
+        # left
+        for a in range(1,8):
+
+            if(x - (50*a) < 100):
+                break
+
+            elif([x - (50*a), y] in friendly):
+                break
+
+            elif([x - (50*a), y] in enemy):
+                self.attack_lst.append([x - (50*a), y])
+                break
+
+            else:
+                self.attack_lst.append([x - (50*a), y])
+
+
+        # right
+        for a in range(1,8):
+
+            if(x + (50*a) > 450):
+                break
+
+            elif([x + (50*a), y] in friendly):
+                break
+
+            elif([x + (50*a), y] in enemy):
+                self.attack_lst.append([x + (50*a), y])
+                break
+
+            else:
+                self.attack_lst.append([x + (50*a), y])
+
+
+        # up
+        for a in range(1,8):
+
+            if(y - (50*a) < 100):
+                break
+
+            elif([x, y - (50*a)] in friendly):
+                break
+
+            elif([x, y - (50*a)] in enemy):
+                self.attack_lst.append([x, y - (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x, y - (50*a)])
+
+        # down
+        for a in range(1,8):
+
+            if(y + (50*a) > 450):
+                break
+
+            elif([x, y + (50*a)] in friendly):
+                break
+
+            elif([x, y + (50*a)] in enemy):
+                self.attack_lst.append([x, y + (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x, y + (50*a)])
+
+        return self.attack_lst
 
 # Creates a knight. (x,y) are the top-left coordinates of the square
 class knight:
@@ -200,9 +370,9 @@ class knight:
         return current_y
 
 
-    def set_attack_squares(self, color):
+    def set_attack_squares(self):
 
-        if(color == "black"):
+        if(self.color == "black"):
             piece_coord_lst = black_piece_coord_lst
 
         else:
@@ -255,6 +425,8 @@ class knight:
 class bishop:
 
     global board
+    global white_piece_coord_lst
+    global black_piece_coord_lst
 
     def __init__(self, x, y, color):
 
@@ -262,6 +434,7 @@ class bishop:
         self.y = y
         self.color = color
         self.type = "bishop"
+        self.attack_lst = []
 
         # Draws the base
         self.head = board.create_oval(x+16,y+10,x+34,y+30, fill = color, outline = color)
@@ -286,7 +459,94 @@ class bishop:
         current_y = adj_coord(board.coords(self.stem)[1])
         return current_y
 
+    def set_attack_squares(self):
+
+        if(self.color == "black"):
+            friendly = black_piece_coord_lst
+            enemy = white_piece_coord_lst
+
+        else:
+            friendly = white_piece_coord_lst
+            enemy = black_piece_coord_lst
+
+
+        self.attack_lst = []
+        x = adj_coord(board.coords(self.stem)[0])
+        y = adj_coord(board.coords(self.stem)[1])
+
+        # up-left
+        for a in range(1,8):
+
+            if(x - (50*a) < 100 or y - (50*a) < 100):
+                break
+
+            elif([x - (50*a), y - (50*a)] in friendly):
+                break
+
+            elif([x - (50*a), y - (50*a)] in enemy):
+                self.attack_lst.append([x - (50*a), y - (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x - (50*a), y - (50*a)])
+
+
+        # up-right
+        for a in range(1,8):
+
+            if(x + (50*a) > 450 or y - (50*a) < 100):
+                break
+
+            elif([x + (50*a), y - (50*a)] in friendly):
+                break
+
+            elif([x + (50*a), y - (50*a)] in enemy):
+                self.attack_lst.append([x + (50*a), y - (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x + (50*a), y - (50*a)])
+
+
+        # down-left
+        for a in range(1,8):
+
+            if(x - (50*a) < 100 or y + (50*a) > 450):
+                break
+
+            elif([x - (50*a), y + (50*a)] in friendly):
+                break
+
+            elif([x - (50*a), y + (50*a)] in enemy):
+                self.attack_lst.append([x - (50*a), y + (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x - (50*a), y + (50*a)])
+
+        # down-right
+        for a in range(1,8):
+
+            if(x + (50*a) > 450 or y + (50*a) > 450):
+                break
+
+            elif([x + (50*a), y + (50*a)] in friendly):
+                break
+
+            elif([x + (50*a), y + (50*a)] in enemy):
+                self.attack_lst.append([x + (50*a), y + (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x + (50*a), y + (50*a)])
+
+        return self.attack_lst
+
+
+
 # Creates a queen. (x,y) are the top-left coordinates of the square
+# The queen combines the mobility of a rook and bishop,
+# So I just copied and pasted the rook and bishop set_attack_square() methods
 class queen:
 
     global board
@@ -297,6 +557,7 @@ class queen:
         self.y = y
         self.color = color
         self.type = "queen"
+        self.attack_lst = []
 
         # This first polygon is rough... it draws the spikes at the top of the crown
         self.crown = board.create_polygon(x+10,y+38,x+6,y+14,   x+14,y+38, x+15,y+10,    x+20,y+38,x+25,y+8,    x+30,y+38,x+35,y+10,   x+36,y+38,x+44,y+14,
@@ -323,6 +584,156 @@ class queen:
         current_y = adj_coord(board.coords(self.base)[1])
         return current_y
 
+
+    def set_attack_squares(self):
+
+        if(self.color == "black"):
+            friendly = black_piece_coord_lst
+            enemy = white_piece_coord_lst
+
+        else:
+            friendly = white_piece_coord_lst
+            enemy = black_piece_coord_lst
+
+
+        self.attack_lst = []
+        x = adj_coord(board.coords(self.bump)[0])
+        y = adj_coord(board.coords(self.bump)[1])
+
+        # up-left
+        for a in range(1,8):
+
+            if(x - (50*a) < 100 or y - (50*a) < 100):
+                break
+
+            elif([x - (50*a), y - (50*a)] in friendly):
+                break
+
+            elif([x - (50*a), y - (50*a)] in enemy):
+                self.attack_lst.append([x - (50*a), y - (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x - (50*a), y - (50*a)])
+
+
+        # up-right
+        for a in range(1,8):
+
+            if(x + (50*a) > 450 or y - (50*a) < 100):
+                break
+
+            elif([x + (50*a), y - (50*a)] in friendly):
+                break
+
+            elif([x + (50*a), y - (50*a)] in enemy):
+                self.attack_lst.append([x + (50*a), y - (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x + (50*a), y - (50*a)])
+
+
+        # down-left
+        for a in range(1,8):
+
+            if(x - (50*a) < 100 or y + (50*a) > 450):
+                break
+
+            elif([x - (50*a), y + (50*a)] in friendly):
+                break
+
+            elif([x - (50*a), y + (50*a)] in enemy):
+                self.attack_lst.append([x - (50*a), y + (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x - (50*a), y + (50*a)])
+
+        # down-right
+        for a in range(1,8):
+
+            if(x + (50*a) > 450 or y + (50*a) > 450):
+                break
+
+            elif([x + (50*a), y + (50*a)] in friendly):
+                break
+
+            elif([x + (50*a), y + (50*a)] in enemy):
+                self.attack_lst.append([x + (50*a), y + (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x + (50*a), y + (50*a)])
+
+
+        # left
+        for a in range(1,8):
+
+            if(x - (50*a) < 100):
+                break
+
+            elif([x - (50*a), y] in friendly):
+                break
+
+            elif([x - (50*a), y] in enemy):
+                self.attack_lst.append([x - (50*a), y])
+                break
+
+            else:
+                self.attack_lst.append([x - (50*a), y])
+
+
+        # right
+        for a in range(1,8):
+
+            if(x + (50*a) > 450):
+                break
+
+            elif([x + (50*a), y] in friendly):
+                break
+
+            elif([x + (50*a), y] in enemy):
+                self.attack_lst.append([x + (50*a), y])
+                break
+
+            else:
+                self.attack_lst.append([x + (50*a), y])
+
+
+        # up
+        for a in range(1,8):
+
+            if(y - (50*a) < 100):
+                break
+
+            elif([x, y - (50*a)] in friendly):
+                break
+
+            elif([x, y - (50*a)] in enemy):
+                self.attack_lst.append([x, y - (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x, y - (50*a)])
+
+        # down
+        for a in range(1,8):
+
+            if(y + (50*a) > 450):
+                break
+
+            elif([x, y + (50*a)] in friendly):
+                break
+
+            elif([x, y + (50*a)] in enemy):
+                self.attack_lst.append([x, y + (50*a)])
+                break
+
+            else:
+                self.attack_lst.append([x, y + (50*a)])
+
+        return self.attack_lst
 
 # Creates a king. (x,y) are the top-left coordinates of the square
 class king:
@@ -360,8 +771,8 @@ class king:
         current_y = adj_coord(board.coords(self.stem)[1])
         return current_y
 
-    def set_attack_squares(self, color):
-        if(color == "black"):
+    def set_attack_squares(self):
+        if(self.color == "black"):
             piece_coord_lst = black_piece_coord_lst
 
         else:
@@ -659,15 +1070,13 @@ def click_piece(event):
                 board.move(yellow_highlighter,high_light_coords[0], high_light_coords[1])
                 board.itemconfig(yellow_highlighter, fill = "yellow")
 
+                master_piece.set_attack_squares()
 
-                if(master_piece.type == "knight" or master_piece.type == "king"):
-                    master_piece.set_attack_squares(master_piece.color)
+                for coords in master_piece.attack_lst:
+                    for squares in highlight_lst:
 
-                    for coords in master_piece.attack_lst:
-                        for squares in highlight_lst:
-
-                            if(board.coords(squares)[0] == coords[0] and board.coords(squares)[1] == coords[1]):
-                                board.itemconfig(squares, fill = color)
+                        if(board.coords(squares)[0] == coords[0] and board.coords(squares)[1] == coords[1]):
+                            board.itemconfig(squares, fill = color)
 
                 return
 
@@ -700,10 +1109,7 @@ def move_white_piece(event):
         current_x = master_piece.get_x()
         current_y = master_piece.get_y()
 
-        if(master_piece.type == "knight" and [x_corner, y_corner] not in master_piece.attack_lst):
-            return
-
-        elif(master_piece.type == "king" and [x_corner, y_corner] not in master_piece.attack_lst):
+        if([x_corner, y_corner] not in master_piece.attack_lst):
             return
 
         else:
@@ -768,11 +1174,9 @@ def move_black_piece(event):
         current_x = master_piece.get_x()
         current_y = master_piece.get_y()
 
-        if(master_piece.type == "knight" and [x_corner, y_corner] not in master_piece.attack_lst):
+        if([x_corner, y_corner] not in master_piece.attack_lst):
             return
 
-        elif(master_piece.type == "king" and [x_corner, y_corner] not in master_piece.attack_lst):
-            return
 
         else:
 
@@ -814,38 +1218,70 @@ def move_black_piece(event):
 
 # These methods move the white (blue) player's selector circle around the board
 def w_left_key(event):
+
     if(board.coords(white_selector)[0] > 104):
         board.move(white_selector, -50, 0)
 
+    else:
+        board.move(white_selector, 350, 0)
+
 def w_right_key(event):
+
     if(board.coords(white_selector)[2] < 496):
         board.move(white_selector, 50, 0)
 
+    else:
+        board.move(white_selector, -350, 0)
+
 def w_up_key(event):
+
     if(board.coords(white_selector)[1] > 104):
         board.move(white_selector, 0, -50)
 
+    else:
+        board.move(white_selector, 0, 350)
+
 def w_down_key(event):
+
     if(board.coords(white_selector)[3] < 496):
         board.move(white_selector, 0, 50)
+
+    else:
+        board.move(white_selector, 0, -350)
 
 
 # These methods move the black player's selector square around the board
 def b_left_key(event):
+
     if(board.coords(black_selector)[0] > 100):
         board.move(black_selector, -50, 0)
 
+    else:
+        board.move(black_selector, 350, 0)
+
 def b_right_key(event):
+
     if(board.coords(black_selector)[2] < 500):
         board.move(black_selector, 50, 0)
 
+    else:
+        board.move(black_selector, -350, 0)
+
 def b_up_key(event):
+
     if(board.coords(black_selector)[1] > 100):
         board.move(black_selector, 0, -50)
 
+    else:
+        board.move(black_selector, 0, 350)
+
 def b_down_key(event):
+
     if(board.coords(black_selector)[3] < 500):
         board.move(black_selector, 0, 50)
+
+    else:
+        board.move(black_selector, 0, -350)
 
 
 # KEY BINDS!!!
