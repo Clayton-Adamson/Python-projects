@@ -179,8 +179,13 @@ def white_offer_draw():
     global white_offered_draw
     global game_in_progress
     global master_piece
+    global promote
 
-    if(black_offered_draw and game_in_progress):
+
+    if(promote):
+        return
+
+    elif(black_offered_draw and game_in_progress):
         board.itemconfig(black_draw_text, fill = "")
         master_piece = None
         game_in_progress = False
@@ -208,8 +213,12 @@ def black_offer_draw():
     global white_offered_draw
     global game_in_progress
     global master_piece
+    global promote
 
-    if(white_offered_draw and game_in_progress):
+    if(promote):
+        return
+
+    elif(white_offered_draw and game_in_progress):
         board.itemconfig(white_draw_text, fill = "")
         master_piece = None
         game_in_progress = False
@@ -235,8 +244,9 @@ def white_resign():
     global white_to_move
     global game_in_progress
     global master_piece
+    global promote
 
-    if(white_to_move and game_in_progress):
+    if(white_to_move and game_in_progress and not promote):
         board.itemconfig(white_draw_text, fill = "")
 
         master_piece = None
@@ -259,7 +269,7 @@ def black_resign():
     global game_in_progress
     global master_piece
 
-    if(not white_to_move and game_in_progress):
+    if(not white_to_move and game_in_progress and not promote):
         board.itemconfig(black_draw_text, fill = "")
         master_piece = None
         game_in_progress = False
