@@ -73,9 +73,17 @@ black_promote_text = board.create_text(800,50, text = "Press Q, R, B, or K to pr
 
 # Draws invisible text that will inform the user that one player has offered a draw
 
-white_draw_text = board.create_text(800,50, text = "White has offered a draw. Click Accept Draw or politely decline.", fill = "")
+white_draw_text = board.create_text(800,45, text = "White has offered a draw. Click Accept Draw or politely decline.", fill = "")
 
-black_draw_text = board.create_text(300,50, text = "Black has offered a draw. Click Accept Draw or politely decline.", fill = "")
+black_draw_text = board.create_text(300,45, text = "Black has offered a draw. Click Accept Draw or politely decline.", fill = "")
+
+white_instructions = board.create_text(300,45, text = "Click the piece you want to move.", fill = "black")
+
+black_instructions = board.create_text(800,45, text = "Click the piece you want to move.", fill = "black")
+
+white_move_instructions = board.create_text(300,70, text = "WASD keys move the selector icon. Press space to confirm.", fill = "black")
+
+black_move_instructions = board.create_text(800,70, text = "Arrow keys move the selector icon. Press Enter to confirm.", fill = "black")
 
 
 # Draws the squares of the board. Each square is 50X50 units
@@ -121,6 +129,16 @@ black_yellow_highlighter = board.create_rectangle(600,100,650,150)
 # Creates the invisible squares that "light up" to show the available attack squares for the clicked piece
 white_highlight_lst = []
 black_highlight_lst = []
+
+def delete_instructions(color):
+    if(color == "black"):
+        board.itemconfig(black_instructions, fill = "")
+        board.itemconfig(black_move_instructions, fill = "")
+
+    else:
+        board.itemconfig(white_instructions, fill = "")
+        board.itemconfig(white_move_instructions, fill = "")
+
 
 # Converts the x coordinate into the inverted version
 #  (I don't add 500 in this method because sometimes I'm trying to go from the right board to the left)
@@ -186,6 +204,8 @@ def white_offer_draw():
         return
 
     elif(black_offered_draw and game_in_progress):
+        delete_instructions("black")
+        delete_instructions("white")
         board.itemconfig(black_draw_text, fill = "")
         master_piece = None
         game_in_progress = False
@@ -200,6 +220,8 @@ def white_offer_draw():
         quitt.place(x = 550, y = 325, anchor = CENTER)
 
     elif(white_to_move and game_in_progress):
+        delete_instructions("black")
+        delete_instructions("white")
         white_offered_draw = True
         board.itemconfig(white_draw_text, fill = "black")
 
@@ -218,7 +240,11 @@ def black_offer_draw():
     if(promote):
         return
 
+
+
     elif(white_offered_draw and game_in_progress):
+        delete_instructions("black")
+        delete_instructions("white")
         board.itemconfig(white_draw_text, fill = "")
         master_piece = None
         game_in_progress = False
@@ -233,6 +259,8 @@ def black_offer_draw():
         quitt.place(x = 550, y = 325, anchor = CENTER)
 
     elif(not white_to_move and game_in_progress):
+        delete_instructions("black")
+        delete_instructions("white")
         black_offered_draw = True
         board.itemconfig(black_draw_text, fill = "black")
 
@@ -247,6 +275,8 @@ def white_resign():
     global promote
 
     if(white_to_move and game_in_progress and not promote):
+        delete_instructions("black")
+        delete_instructions("white")
         board.itemconfig(white_draw_text, fill = "")
 
         master_piece = None
@@ -270,6 +300,8 @@ def black_resign():
     global master_piece
 
     if(not white_to_move and game_in_progress and not promote):
+        delete_instructions("black")
+        delete_instructions("white")
         board.itemconfig(black_draw_text, fill = "")
         master_piece = None
         game_in_progress = False
@@ -2695,6 +2727,8 @@ def move_white_piece(event):
 
     else:
 
+        delete_instructions("white")
+
         x_corner = adj_coord(board.coords(white_selector)[0])
         y_corner = adj_coord(board.coords(white_selector)[1])
         current_x = master_piece.get_x()
@@ -2851,6 +2885,7 @@ def move_black_piece(event):
 
         else:
 
+            delete_instructions("black")
             bp_rushed = False
 
             move_lst = delta_coords(current_x, current_y, x_corner, y_corner)
